@@ -1,9 +1,7 @@
-from turtle import color
 import torch
 from hashlib import sha256
 from bit_distributing import fitpartition
 import numpy as np
-import random
 from robustness import dynamic_programming_segment
 def default_hash_fn(tensor):
     """Returns the hash of the given tensor using the sha256 algorithm.
@@ -45,7 +43,10 @@ def generate(model,vocab_size, prior_tokens, mark_info, alpha, max_length ,delta
             bit_batch,N,bit_count,sig = par.markbit_by_partition(
                 l_t_input_batch, gli_batch, gls, in_green_list,_)
             gain = [(gli_batch[i] < gls) if bit_batch[i] > 0.5 else (gli_batch[i] >= gls) for i in range(B)]
-
+            gain = [delta * g for g in gain]
+                # Apply watermarking
+            gain = torch.stack(gain, dim=0)
+            l_t_batch = l_t_batch + gain
             # Apply softmax and sample the next token
             l_t_batch = torch.softmax(l_t_batch, dim=-1)
             
@@ -53,12 +54,13 @@ def generate(model,vocab_size, prior_tokens, mark_info, alpha, max_length ,delta
             
             generated_tokens = torch.cat([generated_tokens, next_tokens], dim=-1)
             if B == 1:
-                print(_,end=",")
-                if gain[0][next_tokens[0].item()] > 0.5:
+                print("(",_,end=",")
+                if gli_batch[0][next_tokens[0].item()] > gls:
                 # if (gli_batch.gather(1,generated_tokens[:, -1].unsqueeze(-1))).squeeze():
                     print(f"\033[92m{next_tokens[0].item()}\033[0m", end=",")
                 else:
                     print(f"\033[91m{next_tokens[0].item()}\033[0m", end=",") 
+            print(")",end=",")
             in_green_list += (gli_batch.gather(1,
                         generated_tokens[:, -1].unsqueeze(-1)) < gls).squeeze()
         torch.cuda.empty_cache()

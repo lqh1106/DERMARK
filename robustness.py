@@ -1,9 +1,7 @@
 import math
-from turtle import color
 import random
 import numpy as np
 import scipy.stats as stats
-from sympy import group
 def dynamic_programming_segment(P, bit,alpha, group_count,delta,beta):
 
     n = len(P)
@@ -111,8 +109,6 @@ def dynamic_programming_segment(P, bit,alpha, group_count,delta,beta):
         min_cc = min_cc_new
     # print("Time is ",TIME)        
     for seg in segments:
-        print(seg,end=" ")
-        print(green_count[seg[1]] - green_count[seg[0]], red_count[seg[1]] - red_count[seg[0]])
         if (green_count[seg[1]] - green_count[seg[0]]) > (red_count[seg[1]] - red_count[seg[0]]):
             info1.append(1)
         elif ((green_count[seg[1]] - green_count[seg[0]]) == (red_count[seg[1]] - red_count[seg[0]])):

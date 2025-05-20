@@ -1,15 +1,10 @@
-from ast import mod
 import torch
 import random
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from watermarking import generate,detect_robustness
-from tqdm import tqdm
-import json
-import math
-import numpy as np
 import os
 # from wrapper import LMWrapper
-os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 
 class LMWrapper(torch.nn.Module):
@@ -59,7 +54,6 @@ def main():
     model.eval()
     vocab_size = model.tokenizer.vocab_size
     
-    prompt = "I am going to tell a story:"
     prompt_set = [model.tokenizer(prompt, return_tensors="pt")]
     batch_size = 1
     batches = [
@@ -70,7 +64,7 @@ def main():
     
     with torch.no_grad():
         
-        alpha = 0.90
+
         mark_info = [random.choice([0, 1]) for _ in range(10)] 
         print("mark info",mark_info)
         for batch in batches:
@@ -79,13 +73,14 @@ def main():
             batch_input = batch_input.to(model.device)
             generated_tokens,N,bit_count,l_t = generate(model,vocab_size, batch_input, mark_info, alpha, max_length ,delta)
             info = detect_robustness(model, batch_input, generated_tokens, vocab_size, alpha, delta,N, bit_count)
-            print("\n",info)
+            print("\ndetection result:",info)
 
-                
-model_path = '../Llama-2-7b'
+
+model_path = '../../Llama-2-7b'
+alpha = 0.90            
 max_length = 100
 delta = 1
-
+prompt = "I am going to tell a story:"
 
 if __name__ == "__main__":
 
