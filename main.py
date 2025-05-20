@@ -76,7 +76,7 @@ def main():
             print("\ndetection result:",info)
 
 
-model_path = '../../Llama-2-7b'
+model_path = '../Llama-2-7b'
 alpha = 0.90            
 max_length = 100
 delta = 1

@@ -1,4 +1,4 @@
-# Robust Watermarking for Language Models
+# DERMARK: A Dynamic, Efficient and Robust Multi-bit Watermark for Large Language Models
 
 This repository provides a robust multi-bit watermarking system for language models using green-list based token manipulation. It supports watermark embedding, detection, and robustness evaluation via dynamic programming.
 
@@ -29,13 +29,35 @@ This repository provides a robust multi-bit watermarking system for language mod
 
 Install dependencies:
 
-```
-bash
-
-
-复制编辑
+```bash
 pip install torch numpy
 ```
+
+## 📍 Model Path Configuration
+
+Before using the toolkit, make sure to specify the correct path to your deployed language model:
+
+```python
+model_path = '../Llama-2-7b'
+```
+
+This variable should point to the directory where your model (e.g., LLaMA-2 or other Hugging Face-compatible model) is located.
+
+- If the model is already downloaded and stored locally, set `model_path` to the corresponding local directory.
+- If you are loading the model from Hugging Face's `transformers` library directly, you can pass the model name instead (e.g., `"meta-llama/Llama-2-7b-hf"`).
+
+**Example:**
+
+```python
+from transformers import AutoModelForCausalLM, AutoTokenizer
+
+model_path = "../Llama-2-7b"  # Change this path to your local model directory
+
+tokenizer = AutoTokenizer.from_pretrained(model_path)
+model = AutoModelForCausalLM.from_pretrained(model_path).cuda()
+```
+
+> 🔁 *If you're using a different model, make sure to update `model_path` accordingly and ensure compatibility with causal language modeling.*
 
 ## 🚀Usage
 
@@ -109,4 +131,4 @@ mark info [0, 0, 1, 1, 1, 0, 1, 1, 0, 0]
 detection result: [[0, 0, 1, 1, 0, 0, 1]]
 ```
 
-In the tuple (0, 297), the first number (e.g., 0) represents the position of the token, while the second number (e.g., 297) indicates its index in the vocabulary. The color of the second number reflects the watermark it carries (green: bit 1, red: bit 0).
+In each tuple like `(0, 297)`, the first number (e.g., `0`) indicates the token's position in the sequence, and the second number (e.g., `297`) represents its vocabulary index. The color of the second number corresponds to the embedded watermark bit: **green for bit 1**, **red for bit 0**.
